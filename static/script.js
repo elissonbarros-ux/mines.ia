@@ -50,24 +50,42 @@ function atualizar() {
 
         const p = probs[i][j]
 
+        // cor baseada no risco
         const red = Math.floor(255 * p)
         const green = Math.floor(255 * (1 - p))
 
         cell.style.background = `rgb(${red}, ${green}, 0)`
+
+        // mostrar %
         cell.innerText = (p * 100).toFixed(0) + "%"
+
+        // destaque visual forte
+        if (p > 0.7) {
+            cell.style.border = "3px solid red"   // MUITO PERIGOSO
+        } else if (p < 0.3) {
+            cell.style.border = "3px solid lime"  // MUITO SEGURO
+        } else {
+            cell.style.border = "1px solid #333"
+        }
     })
 
     selecionadas = []
 }
 
+
 function mostrarSugestoes(sugestoes) {
-    document.querySelectorAll(".cell").forEach(c => c.classList.remove("safe"))
+    document.querySelectorAll(".cell").forEach(c => {
+        c.classList.remove("safe")
+        c.style.boxShadow = "none"
+    })
 
     sugestoes.forEach(s => {
         const [i, j] = s.pos
         const cell = document.querySelector(`.cell[data-i='${i}'][data-j='${j}']`)
+
         if (cell) {
             cell.classList.add("safe")
+            cell.style.boxShadow = "0 0 15px lime" // brilho estilo cassino
         }
     })
 }
