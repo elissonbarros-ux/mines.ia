@@ -21,18 +21,25 @@ for (let i = 0; i < 5; i++) {
 }
 
 function enviar() {
+    const num_minas = document.getElementById("num_minas").value
+    const num_escolhas = document.getElementById("num_escolhas").value
+
     fetch("/play", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ minas: selecionadas })
+        body: JSON.stringify({
+            minas: selecionadas,
+            num_minas: parseInt(num_minas),
+            num_escolhas: parseInt(num_escolhas)
+        })
     })
     .then(res => res.json())
     .then(data => {
-        probs = data
+        probs = data.probs
+        mostrarSugestoes(data.sugestoes)
         atualizar()
     })
 }
-
 function atualizar() {
     const cells = document.querySelectorAll(".cell")
 
@@ -75,4 +82,16 @@ function sugerir() {
 
 function resetar() {
     location.reload()
+}
+
+function mostrarSugestoes(sugestoes) {
+    document.querySelectorAll(".cell").forEach(c => c.classList.remove("safe"))
+
+    sugestoes.forEach(s => {
+        const [i, j] = s.pos
+        const cell = document.querySelector(`.cell[data-i='${i}'][data-j='${j}']`)
+        if (cell) {
+            cell.classList.add("safe")
+        }
+    })
 }
