@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
+import os
 
 app = Flask(__name__)
 
@@ -12,38 +13,50 @@ X, y = [], []
 
 model = RandomForestClassifier(n_estimators=120)
 
+# =========================
+# FEATURES
+# =========================
 def features(i, j):
     f = [i, j]
+
     ultimas = historico[-MEMORIA:]
-    
+
     for r in ultimas:
         f.append(1 if [i, j] in r else 0)
-    
+
     while len(f) < 2 + MEMORIA:
         f.append(0)
-    
+
     freq = sum(1 for r in ultimas if [i, j] in r)
     f.append(freq)
-    
+
     return f
 
+# =========================
+# TREINO
+# =========================
 def treinar():
     if len(X) > 30:
         model.fit(X, y)
 
+# =========================
+# PREVISÃO INTELIGENTE
+# =========================
 def prever(num_minas, num_escolhas):
     probs = np.zeros((SIZE, SIZE))
 
     for i in range(SIZE):
         for j in range(SIZE):
+
             base = 0
 
-            # frequência histórica
+            # frequência total
             freq_total = sum(1 for r in historico if [i, j] in r)
 
-            # peso maior para recentes
+            # peso para recentes
             peso = 1
             peso_total = 0
+
             for r in reversed(historico[-10:]):
                 if [i, j] in r:
                     base += peso
@@ -53,18 +66,18 @@ def prever(num_minas, num_escolhas):
             if peso_total > 0:
                 base = base / peso_total
 
-            # modelo ML (se treinado)
+            # ML
             if len(X) > 30:
                 ml = model.predict_proba([features(i, j)])[0][1]
             else:
                 ml = 0
 
-            # mistura inteligência
+            # combinação
             p = (base * 0.6) + (ml * 0.4)
 
             probs[i][j] = p
 
-    # transformar em lista
+    # lista ordenada
     lista = []
     for i in range(SIZE):
         for j in range(SIZE):
@@ -73,16 +86,18 @@ def prever(num_minas, num_escolhas):
                 "prob": probs[i][j]
             })
 
-    # ordenar menor risco primeiro
     lista.sort(key=lambda x: x["prob"])
 
-    # sugerir casas seguras
     sugestoes = lista[:num_escolhas]
 
     return {
         "probs": probs.tolist(),
         "sugestoes": sugestoes
     }
+
+# =========================
+# ROTAS
+# =========================
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -108,5 +123,11 @@ def play():
 
     treinar()
 
-    return jsonify(prever(num_minas, num_escolhas))    
-    return jsonify(prever())
+    return jsonify(prever(num_minas, num_escolhas))
+
+# =========================
+# RUN
+# =========================
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
