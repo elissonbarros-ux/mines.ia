@@ -1,28 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mines IA</title>
+    <title>🎰 Mines IA PRO</title>
+
     <link rel="stylesheet" href="/static/style.css">
+
+    <!-- 📊 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
-<h1>🎰 Mines Predictor IA</h1>
+<h1>🎰 Mines Predictor IA PRO</h1>
 
+<!-- ⚙️ CONFIG -->
 <div>
-    <label>Minas:</label>
-    <input type="number" id="num_minas" value="5">
+    <label>💣 Minas:</label>
+    <input type="number" id="num_minas" value="5" min="1" max="20">
 
-    <label>Casas seguras:</label>
-    <input type="number" id="num_escolhas" value="5">
+    <label>🟩 Casas seguras:</label>
+    <input type="number" id="num_escolhas" value="5" min="1" max="25">
 </div>
 
+<!-- 🎯 GRID -->
 <div id="grid" class="grid"></div>
 
+<!-- 🎮 CONTROLES -->
 <div>
-    <button onclick="enviar()">Finalizar</button>
-    <button onclick="resetar()">Reset</button>
+    <button onclick="enviar()">🎯 Finalizar Jogada</button>
+    <button onclick="resetar()">🔄 Reset</button>
 </div>
 
+<!-- 📊 GRÁFICO -->
+<h3>📊 Desempenho da IA</h3>
+<canvas id="grafico" width="300" height="150"></canvas>
+
+<!-- 🚀 SCRIPT -->
 <script src="/static/script.js"></script>
 
 </body>
